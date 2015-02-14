@@ -1,0 +1,9 @@
+{
+  "name": "coffee-printer",
+  "version": "0.0.1",
+  "dependencies": {
+    "semantic-ui": "~1.6.2",
+    "mithril": "0.1.28",
+    "codemirror": ""
+  }
+}

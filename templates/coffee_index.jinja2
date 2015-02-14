@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Coffee Printer</title>
+
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <link rel="stylesheet" href="/plugin_assets/coffee/css/semantic.css">
+    <link rel="stylesheet" href="/plugin_assets/coffee/css/coffee.css">
+</head>
+
+<body>
+    <div class="ui grid">
+        <div class="ui white five wide column cookbook_list">
+            <div class="ui items">
+                {% for index in range(0, 10) %}
+                <div class="item">
+                    <div class="content">
+                        <a class="header">Item 1 Header</a>
+                        <div class="meta">
+                            <span class="cinema">Item 1 Metadata</span>
+                        </div>
+                        <div class="description">
+                            Item 1 Description
+                        </div>
+                        <div class="extra">
+                            <div class="ui right floated primary button">
+                                Print
+                            </div>
+                            <div class="ui horizontal label">Tag 1</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="ui white eleven wide column cookbook_content">
+            Cookbook content
+        </div>
+    </div> <!-- end grid -->
+</body>
+<script src="/plugin_assets/coffee/js/jquery.js"></script>
+<script src="/plugin_assets/coffee/js/semantic.js"></script>
+</html>
