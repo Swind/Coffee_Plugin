@@ -138,4 +138,9 @@ class CookbookPlugin(octoprint.plugin.BlueprintPlugin,
 
     @octoprint.plugin.BlueprintPlugin.route("/cookbooks/<string:name>", methods=["DELETE"])
     def delete_cookbook(self, name):
-        pass
+        name = name + ".cookbook"
+
+        self._file_manager.remove_file(FileDestinations.LOCAL, os.path.join(self.COOKBOOK_FOLDER, name))
+        self._file_manager.remove_file(FileDestinations.LOCAL, os.path.join(self.COOKBOOK_FOLDER, name + ".gcode"))
+
+        return Response(None, status=202)
