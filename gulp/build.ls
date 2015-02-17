@@ -8,6 +8,10 @@ require! {
     'gulp-livereload': livereload
 }
 
+handleError = (err) ->
+    console.error err.toString!
+    @emit "end"
+
 gulp.task 'build', ['copy-js', 'copy-css', 'build-livescript', 'sass'] ->
 
 gulp.task 'sass' ->
@@ -19,6 +23,7 @@ gulp.task 'sass' ->
 gulp.task 'build-livescript' ->
     return gulp.src './static/ls/*.ls'
            .pipe livescript bare: true
+           .on 'error', handleError
            .pipe gulp.dest './static/js'
            .pipe livereload!
 
