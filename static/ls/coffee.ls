@@ -12,15 +12,14 @@ cookbook_list.vm = do ->
 cookbook_list.view = (ctrl) ->
 
     generate_item = (name) ->
-        m "li", [
-            m "a.list-group-item", [
-                m "h4.list-group-item-heading" name
+        m "div.ui.item", [
+            m "div.content", [
+                m "a.header" name
             ]
         ]
 
-    m "ul.nav.list-group",
-        for name, metadata of cookbook_list.vm.cookbooks!
-            generate_item(name)
+    m "div", for name, metadata of cookbook_list.vm.cookbooks!
+        generate_item(name)
 
 cookbook_list.controller = ! ->
     cookbook_list.vm.init!

@@ -15,9 +15,9 @@ cookbook_list.vm = function(){
 cookbook_list.view = function(ctrl){
   var generate_item, name, metadata;
   generate_item = function(name){
-    return m("li", [m("a.list-group-item", [m("h4.list-group-item-heading", name)])]);
+    return m("div.ui.item", [m("div.content", [m("a.header", name)])]);
   };
-  return m("ul.nav.list-group", (function(){
+  return m("div", (function(){
     var ref$, results$ = [];
     for (name in ref$ = cookbook_list.vm.cookbooks()) {
       metadata = ref$[name];
