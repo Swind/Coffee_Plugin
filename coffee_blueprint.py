@@ -46,12 +46,12 @@ class CookbookPlugin(octoprint.plugin.BlueprintPlugin,
     Cookbook Resource:
 
     {
-        "name": "spiral.coffee", 
+        "name": "spiral.coffee",
         "size": 1468987,
         "date": 1378847754,
         "refs": {
             "resource": "http://example.com/api/files/local/whistle_v2.gcode",
-            "download": "http://example.com/downloads/files/local/whistle_v2.gcode" 
+            "download": "http://example.com/downloads/files/local/whistle_v2.gcode"
         },
         "gcodeAnalysis": {
             "estimatedPrintTime": 1188,
@@ -66,9 +66,8 @@ class CookbookPlugin(octoprint.plugin.BlueprintPlugin,
             "last": {
              "date": 1387144346,
              "success": true
-        },
-        "content": "Step 1 ..."
-    } 
+        }
+    }
     """
     def is_blueprint_protected(self):
         return False
@@ -83,17 +82,11 @@ class CookbookPlugin(octoprint.plugin.BlueprintPlugin,
             if metadata["type"] == "coffee":
                 gcode_name = name + ".gcode"
 
-                # Merge gcode metadata to cookbook 
+                # Merge gcode metadata to cookbook
                 gcode_metadata = files.get(gcode_name)
                 if gcode_metadata is not None:
                     metadata["analysis"] = gcode_metadata["analysis"]
                     del files[gcode_name]
-
-                # Read cookbook content from file
-                sanitize_path = self.__get_file_path(name)
-                
-                with open(sanitize_path, "r") as cookbook_file:
-                    metadata["content"] = cookbook_file.read() 
 
                 # Remove ".cookbook" from the key name in the dict
                 files[name.replace(".cookbook", "")] = metadata
@@ -114,6 +107,26 @@ class CookbookPlugin(octoprint.plugin.BlueprintPlugin,
         files = self.__list_cookbooks()
 
         if name in files:
+            # Read cookbook content from file
+            sanitize_path = self.__get_file_path(name + ".cookbook")
+
+            with open(sanitize_path, "r") as cookbook_file:
+                files[name]["content"] = cookbook_file.read()
+
+            return jsonify(files[name])
+        else:
+            abort(404)
+
+    @octoprint.plugin.BlueprintPlugin.route("/cookbooks/<string:name>/gcode", methods=["GET"])
+    def get_cookbook_gcode(self, name):
+        files = self.__list_cookbooks()
+
+        if name in files:
+            sanitize_path = self.__get_file_path(name + ".cookbook.gcode")
+
+            with open(sanitize_path, "r") as cookbook_file:
+                files[name]["gcode"] = cookbook_file.read()
+
             return jsonify(files[name])
         else:
             abort(404)
@@ -124,7 +137,7 @@ class CookbookPlugin(octoprint.plugin.BlueprintPlugin,
 
         from flask import request
         content = request.data
-        
+
         sanitize_path = self.__get_file_path(name)
 
         # Generate gcode file

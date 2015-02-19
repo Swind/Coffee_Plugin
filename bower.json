@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "dependencies": {
     "bootstrap": "",
-    "mithril": "0.1.28",
-    "codemirror": ""
+    "mithril": "",
+    "codemirror": "",
+    "semantic-ui": ""
   }
 }

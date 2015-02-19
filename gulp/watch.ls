@@ -4,8 +4,5 @@ require! {
 }
 
 gulp.task 'watch' ->
-    livereload.options.host = "192.168.1.169"
-    livereload.listen!
-    gulp.watch 'static/ls/*.ls', ['build-livescript']
-    gulp.watch 'static/scss/*.scss', ['sass']
-    gulp.watch 'templates/*.jinja2', ['templates']
+    gulp.watch 'app/ls/**/*.ls', ['build-livescript', 'browserify']
+    gulp.watch 'app/scss/**/*.scss', ['sass']

@@ -5,31 +5,34 @@ require! {
     'gulp-util': gutil
     'main-bower-files': bowerfiles
     'gulp-livescript': livescript
-    'gulp-livereload': livereload
+    'gulp-browserify': browserify
 }
 
 handleError = (err) ->
     console.error err.toString!
     @emit "end"
 
-gulp.task 'build', ['copy-js', 'copy-css', 'build-livescript', 'sass'] ->
+gulp.task 'build', ['copy-js', 'copy-css', 'build-livescript', 'sass', 'browserify'] ->
 
 gulp.task 'sass' ->
     return gulp.src './static/scss/*.scss'
            .pipe sass!
            .pipe gulp.dest './static/css'
-           .pipe livereload!
 
 gulp.task 'build-livescript' ->
-    return gulp.src './static/ls/*.ls'
+    return gulp.src 'app/ls/**/*.ls', {base: 'app/ls'}
            .pipe livescript bare: true
            .on 'error', handleError
-           .pipe gulp.dest './static/js'
-           .pipe livereload!
+           .pipe gulp.dest '.tmpjs'
+
+gulp.task 'browserify', ['build-livescript'] ->
+    return gulp.src '.tmpjs/coffee.js', {base: '.tmpjs'}
+    .pipe browserify {insertGlobals: true, paths: ['./node_modules', './.tmpjs']}
+    .on 'error', handleError
+    .pipe gulp.dest 'static/js'
 
 gulp.task 'templates' ->
     return gulp.src './templates/*.jinja2'
-           .pipe livereload!
 
 gulp.task 'copy-js' ->
     return gulp.src bowerfiles ['**/*.js'], {base: './vendor'}
