@@ -15,6 +15,7 @@ from octoprint.filemanager.destinations import FileDestinations
 
 from coffee.parser.cookbook import Cookbook
 
+
 class CookbookPlugin(octoprint.plugin.BlueprintPlugin,
                      octoprint.plugin.StartupPlugin):
     COOKBOOK_FOLDER = "cookbooks"
@@ -28,12 +29,11 @@ class CookbookPlugin(octoprint.plugin.BlueprintPlugin,
         from octoprint.filemanager import extensions
         # Append cookbook file type to local storage manager
         extensions["coffee"] = {
-                "cookbook": ["cookbook"]
+            "cookbook": ["cookbook"]
         }
 
         from octoprint.filemanager import all_extensions
         all_extensions.append("cookbook")
-
 
         self._file_manager.add_folder(FileDestinations.LOCAL, self.COOKBOOK_FOLDER)
 
@@ -89,7 +89,9 @@ class CookbookPlugin(octoprint.plugin.BlueprintPlugin,
                     del files[gcode_name]
 
                 # Remove ".cookbook" from the key name in the dict
-                files[name.replace(".cookbook", "")] = metadata
+                id = name.replace(".cookbook", "")
+                metadata["id"] = id
+                files[id] = metadata
                 del files[name]
 
         return files

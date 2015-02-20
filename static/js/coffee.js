@@ -1,129 +1,146 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
-var Cookbook;
-Cookbook = (function(){
-  Cookbook.displayName = 'Cookbook';
-  var prototype = Cookbook.prototype, constructor = Cookbook;
+var cookbook_list, cookbook_content, cookbook, CookbookItem, submodule;
+cookbook_list = require('components/cookbook_list.js');
+cookbook_content = require('components/cookbook_content.js');
+cookbook = {};
+CookbookItem = (function(){
+  CookbookItem.displayName = 'CookbookItem';
+  var prototype = CookbookItem.prototype, constructor = CookbookItem;
+  function CookbookItem(metadata){
+    this['import'](metadata);
+  }
+  prototype['import'] = function(metadata){
+    this.id = metadata["id"];
+    this.name = metadata["name"];
+    this.created_date = this.format_date(metadata['date']);
+    this.estimated_time = metadata["analysis"]["estimatedPrintTime"].toFixed(2);
+    this.length = metadata["analysis"]["filament"]["tool0"]["length"].toFixed(2);
+    if (in$("content", metadata)) {
+      return this.content = metadata["content"];
+    } else {
+      return this.content = "Empty";
+    }
+  };
   prototype.format_date = function(date_time){
     var dd;
     dd = new Date(date_time * 1000);
     return dd.getFullYear() + '/' + (dd.getMonth() + 1) + "/" + dd.getDate() + " " + dd.getHours() + ":" + dd.getMinutes() + ":" + dd.getSeconds();
   };
-  function Cookbook(name, metadata){
-    this.name = name;
-    this.created_date = this.format_date(metadata['date']);
-    this.estimated_time = metadata["analysis"]["estimatedPrintTime"];
-    this.volume = metadata["analysis"]["filament"]["tool0"]["volume"];
-    this.length = metadata["analysis"]["filament"]["tool0"]["length"];
-    if (in$("content", metadata)) {
-      this.content = metadata["content"];
-    } else {
-      this.content = "";
-    }
-  }
-  return Cookbook;
+  return CookbookItem;
 }());
-module.exports = Cookbook;
+cookbook.vm = function(){
+  var vm;
+  vm = {};
+  vm.init = function(){
+    vm.cookbooks = m.prop({});
+    vm.selected = m.prop({});
+  };
+  vm.list = function(){
+    return m.request({
+      method: 'GET',
+      url: '/plugin/coffee/cookbooks'
+    }).then(function(raw_data){
+      var cookbooks, res$, id, metadata;
+      res$ = [];
+      for (id in raw_data) {
+        metadata = raw_data[id];
+        res$.push(new CookbookItem(metadata));
+      }
+      cookbooks = res$;
+      return vm.cookbooks(cookbooks);
+    });
+  };
+  vm.select_cookbook = function(selected_cookbook){
+    var response;
+    return response = m.request({
+      method: 'GET',
+      url: '/plugin/coffee/cookbooks/' + selected_cookbook.id
+    }).then(vm.selected);
+  };
+  return vm;
+}();
+cookbook.view = function(ctrl){
+  return [
+    m("div.four.wide.column", {
+      id: "sidebar-wrapper"
+    }, [m("div", {
+      id: "sidebar"
+    }, [ctrl.cookbook_list()])]), m("div.twelve.wide.column", {
+      id: "main-wrapper"
+    }, [m("div", {
+      id: "main"
+    }, [ctrl.cookbook_content()])])
+  ];
+};
+submodule = function(module, args){
+  return module.view.bind(this, new module.controller(args));
+};
+cookbook.controller = function(){
+  cookbook.vm.init();
+  this.cookbook_list = submodule(cookbook_list, cookbook.vm);
+  this.cookbook_content = submodule(cookbook_content, cookbook.vm);
+};
+module.exports = cookbook;
 function in$(x, xs){
   var i = -1, l = xs.length >>> 0;
   while (++i < l) if (x === xs[i]) return true;
   return false;
 }
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/components/cookbook.js","/components")
-},{"1YiZ5S":8,"buffer":5}],2:[function(require,module,exports){
+},{"1YiZ5S":8,"buffer":5,"components/cookbook_content.js":2,"components/cookbook_list.js":3}],2:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
-var Cookbook, cookbook_content;
-Cookbook = require('components/cookbook.js');
+var cookbook_content;
 cookbook_content = {};
 cookbook_content.view = function(ctrl){
-  var selected_cookbook;
-  selected_cookbook = cookbook_content.vm.selected_cookbook();
-  return m("h2.ui.dividing.header", [selected_cookbook.name, m("div.ui.segment", [selected_cookbook.content])]);
+  return m("h2.ui.dividing.header", [ctrl.vm.selected().id, m("div.ui.segment", [ctrl.vm.selected().content])]);
 };
-cookbook_content.vm = function(){
-  var vm;
-  vm = {};
-  vm.init = function(){
-    vm.selected_cookbook = m.prop({});
-  };
-  return vm;
-}();
-cookbook_content.controller = function(){
-  cookbook_content.vm.init();
-  this.name = m.route.param("name");
-  this.get_selected_cookbook = function(name){
-    return m.request({
-      method: 'GET',
-      url: '/plugin/coffee/cookbooks/' + name
-    }).then(function(metadata){
-      return new Cookbook(name, metadata);
-    }).then(cookbook_content.vm.selected_cookbook);
-  };
-  if (this.name !== void 8) {
-    this.get_selected_cookbook(this.name);
-  }
+cookbook_content.controller = function(vm){
+  this.vm = vm;
+  return this;
 };
 module.exports = cookbook_content;
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/components/cookbook_content.js","/components")
-},{"1YiZ5S":8,"buffer":5,"components/cookbook.js":1}],3:[function(require,module,exports){
+},{"1YiZ5S":8,"buffer":5}],3:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
-var Cookbook, cookbook_list, Cookbooks;
-Cookbook = require('components/cookbook.js');
+var cookbook_list;
 cookbook_list = {};
-Cookbooks = function(raw_data){
-  var name, metadata, results$ = [];
-  for (name in raw_data) {
-    metadata = raw_data[name];
-    results$.push(new Cookbook(name, metadata));
-  }
-  return results$;
-};
-cookbook_list.vm = function(){
-  var vm;
-  vm = {};
-  vm.init = function(){
-    vm.cookbooks = m.request({
-      method: 'GET',
-      url: '/plugin/coffee/cookbooks',
-      type: Cookbooks
-    });
-  };
-  return vm;
-}();
 cookbook_list.view = function(ctrl){
   var generate_item, cookbook;
   generate_item = function(cookbook){
-    return m("a.ui.item", {
+    return m("div.ui.item", {
       id: "cookbook-item",
-      href: "?/cookbook_content/" + cookbook.name
-    }, [m("div.content", [m("a.header", cookbook.name), m("div.meta", cookbook.created_date), m("div.description", [m("div", cookbook.estimated_time), m("div", cookbook.volume), m("div", cookbook.length)])])]);
+      onclick: function(){
+        ctrl.select_cookbook(cookbook);
+      }
+    }, [m("div.content", [m("a.header", cookbook.id), m("div.meta", cookbook.created_date), m("div.description", [m("div", cookbook.estimated_time), m("div", cookbook.length)])])]);
   };
   return m("div.ui.items.divided", (function(){
     var i$, ref$, len$, results$ = [];
-    for (i$ = 0, len$ = (ref$ = cookbook_list.vm.cookbooks()).length; i$ < len$; ++i$) {
+    for (i$ = 0, len$ = (ref$ = ctrl.vm.cookbooks()).length; i$ < len$; ++i$) {
       cookbook = ref$[i$];
       results$.push(generate_item(cookbook));
     }
     return results$;
   }()));
 };
-cookbook_list.controller = function(){
-  cookbook_list.vm.init();
+cookbook_list.controller = function(vm){
+  this.vm = vm;
+  this.vm.list();
+  this.select_cookbook = function(selected_cookbook){
+    return this.vm.select_cookbook(selected_cookbook);
+  };
+  return this;
 };
 module.exports = cookbook_list;
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/components/cookbook_list.js","/components")
-},{"1YiZ5S":8,"buffer":5,"components/cookbook.js":1}],4:[function(require,module,exports){
+},{"1YiZ5S":8,"buffer":5}],4:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
-var cookbook_list, cookbook_content;
-cookbook_list = require('components/cookbook_list.js');
-cookbook_content = require('components/cookbook_content.js');
-m.module(document.getElementById("sidebar"), cookbook_list);
-m.route(document.getElementById("main"), "/cookbook_content", {
-  "/cookbook_content": cookbook_content,
-  "/cookbook_content/:name": cookbook_content
-});
-}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_5278bd74.js","/")
-},{"1YiZ5S":8,"buffer":5,"components/cookbook_content.js":2,"components/cookbook_list.js":3}],5:[function(require,module,exports){
+var cookbook;
+cookbook = require('components/cookbook.js');
+m.module(document.getElementById("wrapper"), cookbook);
+}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_8830501a.js","/")
+},{"1YiZ5S":8,"buffer":5,"components/cookbook.js":1}],5:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /*!
  * The buffer module from node.js, for the browser.
