@@ -35,8 +35,8 @@ cookbook.vm = do ->
     vm = {}
 
     vm.init = ! ->
-        vm.cookbooks = m.prop {} 
-        vm.selected = m.prop {}
+        vm.cookbooks = m.prop {}
+        vm.selected = m.prop {content: ""}
 
     vm.list = ! ->
         return m.request(
