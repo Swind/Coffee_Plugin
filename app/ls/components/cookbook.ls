@@ -60,6 +60,15 @@ cookbook.vm = do ->
             }
         ).then(vm.selected)
 
+    vm.save_selected_cookbook = ! ->
+        m.request(
+            {
+                method: 'PUT',
+                url: '/plugin/coffee/cookbooks/' + vm.selected!.id,
+                data: vm.selected!.content 
+            }
+        )
+
     vm
 # ================================================================================
 #

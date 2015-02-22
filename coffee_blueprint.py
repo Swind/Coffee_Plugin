@@ -138,7 +138,9 @@ class CookbookPlugin(octoprint.plugin.BlueprintPlugin,
         name = name + ".cookbook"
 
         from flask import request
-        content = request.data
+        content = request.data.replace("\\n", "\n").replace("\\t", "\t")[1:-1]
+
+        print content
 
         sanitize_path = self.__get_file_path(name)
 

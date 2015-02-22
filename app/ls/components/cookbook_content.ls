@@ -21,7 +21,7 @@ codemirror_editor = (mode, value, opts) ->
             do
                 (editor, changeObj) <-! editor.on "change"
                 m.startComputation!
-                value(editor.getValue!)
+                value!.content = editor.getValue!
                 ctx.last_value = value!.content
                 m.endComputation!
 
@@ -43,8 +43,12 @@ codemirror_editor = (mode, value, opts) ->
 #   View 
 #
 # ================================================================================
-cookbook_content.view = (ctrl) ->
-        codemirror_editor("markdown", ctrl.vm.selected, {})
+cookbook_content.view = (ctrl) -> [
+        m("div.ui.header", ctrl.vm.selected!.id),
+        m("div.ui.button", "Print"),
+        m("div.ui.button", {onclick: ! -> ctrl.vm.save_selected_cookbook!}, "Save"),
+        m("div.ui.button", "Delete"),
+        codemirror_editor("markdown", ctrl.vm.selected, {})]
 
 # ================================================================================
 #
@@ -52,7 +56,8 @@ cookbook_content.view = (ctrl) ->
 #
 # ================================================================================
 cookbook_content.controller = (vm) ->
-    @vm = vm 
+    @vm = vm
+
     this
 
 module.exports = cookbook_content

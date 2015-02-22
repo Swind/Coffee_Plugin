@@ -60,6 +60,13 @@ cookbook.vm = function(){
       url: '/plugin/coffee/cookbooks/' + selected_cookbook.id
     }).then(vm.selected);
   };
+  vm.save_selected_cookbook = function(){
+    m.request({
+      method: 'PUT',
+      url: '/plugin/coffee/cookbooks/' + vm.selected().id,
+      data: vm.selected().content
+    });
+  };
   return vm;
 }();
 cookbook.view = function(ctrl){
@@ -109,7 +116,7 @@ codemirror_editor = function(mode, value, opts){
       ctx.CodeMirror = editor;
       editor.on("change", function(editor, changeObj){
         m.startComputation();
-        value(editor.getValue());
+        value().content = editor.getValue();
         ctx.last_value = value().content;
         m.endComputation();
       });
@@ -128,7 +135,13 @@ codemirror_editor = function(mode, value, opts){
   return m("div#cookbook-content", opts);
 };
 cookbook_content.view = function(ctrl){
-  return codemirror_editor("markdown", ctrl.vm.selected, {});
+  return [
+    m("div.ui.header", ctrl.vm.selected().id), m("div.ui.button", "Print"), m("div.ui.button", {
+      onclick: function(){
+        ctrl.vm.save_selected_cookbook();
+      }
+    }, "Save"), m("div.ui.button", "Delete"), codemirror_editor("markdown", ctrl.vm.selected, {})
+  ];
 };
 cookbook_content.controller = function(vm){
   this.vm = vm;
@@ -174,7 +187,7 @@ module.exports = cookbook_list;
 var cookbook;
 cookbook = require('components/cookbook.js');
 m.module(document.getElementById("wrapper"), cookbook);
-}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_617e3c8b.js","/")
+}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_e1787886.js","/")
 },{"1YiZ5S":8,"buffer":5,"components/cookbook.js":1}],5:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /*!
